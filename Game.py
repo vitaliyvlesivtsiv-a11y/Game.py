@@ -382,7 +382,7 @@ class Game:
     def location_3_2(self):
         """Друга гілка - пройти крізь пастки і тварин."""
         random_chance = randint(1, 10)  # Генеруємо випадкове число від 1 до 10
-        if random_chance < 8:
+        if random_chance > 8:
             # 70% шанс на успіх
             self.print_slowly("Вітаю, ви пройшли всі пастки і відбились від тварин")
             self.location4()
