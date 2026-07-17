@@ -247,10 +247,12 @@ class Game:
         
         # Діалог з мандрівником
         self.print_slowly("\nМандрівник дивиться на вас і усміхається:")
-        self.print_slowly('"Вітаю,' name '. Болото сьогодні особливо мовчазне, чи не так?"')
+        self.print_slowly(f'"Вітаю, {self.name}. Болото сьогодні особливо мовчазне, чи не так?"')
         # Жарт від мандрівника
         self.print_slowly("Тримай жарт для підняття духу: ")
-        self.print_slowly('Чим граються діти канібалів?'  time.sleep(2)  "Чужими лопатками")
+        self.print_slowly('Чим граються діти канібалів?')
+        time.sleep(2)
+        self.print_slowly("Чужими лопатками")
         # Мандрівник дарує аптечку
         self.print_slowly("\nВін простягає вам аптечку: 'Візьми, тобі це знадобиться.'")
 
@@ -300,32 +302,24 @@ class Game:
             self.print_slowly("\nОбміркуйте,зустріч могла завершитись інакше")
             time.sleep(3)
 
-        def choose_next_location(self):
+    def choose_next_location(self):
         self.print_title("Куди йти далі?")
         self.print_slowly("Попереду з'являються дві дороги:")
         self.print_slowly("1 - Дорога до Храму джунглів".center(self.SCREEN_WIDTH))
         self.print_slowly("2 - Дорога до казино".center(self.SCREEN_WIDTH))
 
-             while True:
+        while True:
             choice = input("Куди підете? ").strip()
             if choice == "1":
                 self.print_slowly("\nВи вирушаєте до Храму джунглів.")
-                location_3()
+                self.location_3()
                 return
             if choice == "2":
                 self.print_slowly("\nВи вирушаєте до казино.")
                 return
 
             self.print_slowly("Невірний вибір. Введіть 1 або 2.")
-        
-        
-        # Виводимо поточний статус гравця
-        self.print_slowly("\nТвоя позиція: HP={}, Damage={}, Inventory={}".format(self.player_hp, self.damage, self.inventory))
 
-        # Пропонуємо гравцю продовжити
-        time.sleep(2)
-        self.print_slowly("\nТи продовжуєш свою подорож...")
-        self.location_3()
 
     def location_3(self):
         """Третя локація - храм джунглів."""
