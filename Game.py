@@ -18,15 +18,17 @@
 =====================================================
 """
 
+import json  # Для збереження прогресу гри
 import sys  # Для роботи з системними операціями
 import time  # Для додавання затримок (sleep)
+from pathlib import Path  # Для роботи з шляхами до файлів збереження
 from random import randint  # Для генерування випадкових чисел
 
 # Основний клас гри - всі методи та властивості гри містяться тут
 class Game:
     SCREEN_WIDTH = 70  # Ширина екрану для центрування тексту
 
-    def __init__(self):
+    def __init__(self, save_file=None):
         # Ініціалізація всіх параметрів гравця на початку гри
         self.player_hp = 100  # Здоров'я гравця (початкове: 100)
         self.has_knife = False  # Чи має гравець ніж (спочатку False)
@@ -35,6 +37,8 @@ class Game:
         self.inventory = []  # Список предметів у інвентарі гравця
         self.text_delay = 0  # Затримка для посимвольного виводу тексту (0 = миттєво)
         self.damage = 10  # Базова шкода гравця
+        self.save_file = Path(save_file) if save_file else Path("game_save.json")
+        self.load_game()
 
     def choose_text_speed(self):
         """Запитує швидкість поступового виводу тексту та зберігає у self.text_delay."""
@@ -93,6 +97,44 @@ class Game:
         sys.stdout.write(end)  # Пишемо символ завершення (новий рядок)
         sys.stdout.flush()
 
+    def save_game(self):
+        """Зберігає поточний стан гри у JSON-файл."""
+        data = {
+            "player_hp": self.player_hp,
+            "has_knife": self.has_knife,
+            "has_medkit": self.has_medkit,
+            "has_shield": self.has_shield,
+            "inventory": list(self.inventory),
+            "damage": self.damage,
+        }
+        self.save_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(self.save_file, "w", encoding="utf-8") as handle:
+            json.dump(data, handle, ensure_ascii=False, indent=2)
+
+    def load_game(self):
+        """Завантажує стан гри з JSON-файлу, якщо він існує."""
+        try:
+            with open(self.save_file, "r", encoding="utf-8") as handle:
+                data = json.load(handle)
+        except FileNotFoundError:
+            return False
+        except (json.JSONDecodeError, TypeError, ValueError):
+            return False
+
+        self.player_hp = data.get("player_hp", 100)
+        self.has_knife = data.get("has_knife", False)
+        self.has_medkit = data.get("has_medkit", False)
+        self.has_shield = data.get("has_shield", False)
+        self.inventory = list(data.get("inventory", []))
+        self.damage = data.get("damage", 10)
+        return True
+
+    def exit_game(self):
+        """Зберігає гру і завершує її."""
+        self.save_game()
+        self.print_slowly("Гру збережено. До побачення!")
+        raise SystemExit
+
     def start(self):
         """Головна функція - запускає всю гру, починаючи з привітання та отримання імені гравця."""
         # Спочатку просимо гравця вибрати швидкість тексту
@@ -119,18 +161,18 @@ class Game:
         # Описуємо локацію гравцю
         self.print_slowly("Ти опинився на зарослій стежці. Перед тобою три шляхи: густі кущі, підвісний міст, та покинутий табір.")
         # Пропонуємо вибір
-        self.print_slowly("Куди ти хочеш піти? (кущі/міст/табір)")
+        self.print_slowly("Куди ти хочеш піти? (кущі: 1/міст: 2/табір: 3)")
         # Отримуємо вибір гравця
         choice = input("Ваш вибір: ").strip()
         
         # Розгалуження за вибором
-        if choice == "кущі":
+        if choice == 1 or choice == "1":
             # Якщо гравець обирає кущі - переходимо до location_1_1
             self.location_1_1()
-        elif choice == "міст":
+        elif choice == 2 or choice == "2":
             # Якщо гравець обирає міст - переходимо до location_1_2
             self.location_1_2()
-        elif choice == "табір":
+        elif choice == 3 or choice == "3":
             # Якщо гравець обирає табір - переходимо до location_1_3
             self.location_1_3()
         else:
@@ -163,6 +205,7 @@ class Game:
                     self.has_knife = True
                     self.inventory.append("ніж")
                     self.damage += 20  # Ніж дає +20 шкоди
+                    self.save_game()
                     self.print_slowly("Ти підібрав ніж! Твоя шкода збільшилася на 20.")
                     self.location_1_1()  # Повертаємось до цієї локації
             elif choice == "повернутися":
@@ -197,6 +240,7 @@ class Game:
             # Міст обвалився і гравець втратив здоров'я (50% шанс)
             self.print_slowly("Міст обвалився і ти впав у річку. Ти втратив 30 здоров'я. Річка донесла тебе до таємничого болота.")
             self.player_hp -= 30  # Віднімаємо 30 HP
+            self.save_game()
             self.location_2()  # Переходимо до наступної локації
 
     def location_1_3(self):
@@ -206,6 +250,7 @@ class Game:
         # Даємо гравцю аптечку
         self.has_medkit = True
         self.inventory.append("аптечка")
+        self.save_game()
         self.print_slowly("Ти підібрав аптечку! Ти можеш відновити 50 здоров'я.")
         time.sleep(1)  # Невелика пауза перед продовженням
         self.print_slowly("Ти повернувся назад")
@@ -255,6 +300,7 @@ class Game:
             # Додаємо обидві аптечки до інвентарю
             self.inventory.append("аптечка")
             self.inventory.append("аптечка")
+            self.save_game()
             self.print_slowly("Ви взяли 2 аптечки!")
 
         # Якщо гравець обирає мирний варіант
@@ -262,6 +308,7 @@ class Game:
             self.print_slowly("\nВи дякуєте мандрівнику і забираєте аптечку.")
             # Додаємо одну аптечку до інвентарю
             self.inventory.append("аптечка")
+            self.save_game()
             self.print_slowly("Ви взяли аптечку!")
 
         # Якщо гравець введе щось інше
@@ -326,10 +373,12 @@ class Game:
         else:
             self.print_slowly("П'яту загадку не розгадано")
             self.player_hp -= 25
-        if self.player_hp == 0:
-            print("Ти помер")
+        if self.player_hp <= 0:
+            self.print_slowly("Ти помер")
+            self.save_game()
         else:
-            print("Вітаю, ви пройшли храм джунглів")
+            self.print_slowly("Вітаю, ви пройшли храм джунглів")
+            self.save_game()
 
 
     def location_3_2(self):
@@ -343,8 +392,12 @@ class Game:
             # 30% шанс на невдачу
             self.print_slowly("На жаль вам не повезло і ви не пройшли")
             self.player_hp = 0  # Гравець помирає
+            self.save_game()
 
-    def location4():
+    def location4(self):
+        """Фінальна локація гри."""
+        self.print_slowly("Ти вийшов з храму і встиг врятуватися. Гра завершена.")
+        self.save_game()
 
     def show_status(self):
         """Показує поточний статус гравця: здоров'я, шкода, інвентар."""
