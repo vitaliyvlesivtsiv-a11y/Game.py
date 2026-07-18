@@ -221,7 +221,7 @@ class Game:
                 self.player_hp -= 10
             if self.player_hp <= 10:
                 # death()
-                print('ХА лох')
+                print('ХА ЛОХ')
                 exit()
         print('Вам випало:')
         num_1 = randint(1, 3)
