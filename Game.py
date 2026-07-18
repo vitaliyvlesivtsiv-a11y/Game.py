@@ -3,15 +3,15 @@ import sys  # Для роботи з системними операціями
 import time  # Для додавання затримок (sleep)
 from pathlib import Path  # Для роботи з шляхами до файлів збереження
 from random import randint  # Для генерування випадкових чисел
-# Основний клас гри - всі методи та властивості гри містяться тут
 class Game:
-    SCREEN_WIDTH = 70  # Ширина екрану для центрування тексту
+    SCREEN_WIDTH = 70
 
     def __init__(self, save_file=None):
         self.player_hp = 100
         self.has_knife = False
         self.has_medkit = False
         self.has_shield = False
+        self.adventurer = False
         self.artifact_count = 0
         self.inventory = []
         self.text_delay = 0
@@ -108,6 +108,8 @@ class Game:
     def start(self):
         """Головна функція - запускає всю гру, починаючи з привітання та отримання імені гравця."""
         self.choose_text_speed()
+        self.traveler_alive = False
+        self.save_file = Path("game_save.json")
         self.damage = 10
         self.artifact_count = 0
         self.has_medkit = 0
@@ -278,6 +280,7 @@ class Game:
             self.has_medkit += 2
 
         elif choice == "1":
+            self.traveler_alive = True
             self.print_slowly("\nВи дякуєте мандрівнику і забираєте аптечку.")
             self.inventory.append("аптечка")
             self.has_medkit += 1
@@ -309,7 +312,7 @@ class Game:
 
     def location_3_1(self):
         answer1 = input("Загадка: Я найвища тварина в джунглях, маю довгу шию. Хто я?")
-        if answer1 == 'жираф':
+        if answer1 == 'жирафа':
             self.print_slowly("Першу загадку розгадано")
         else:
             self.print_slowly("Першу загадку не розгадано")
@@ -346,8 +349,8 @@ class Game:
             self.print_slowly("Ти помер")
             self.save_game()
         else:
-            self.print_slowly("Вітаю, ви пройшли храм джунглів")
-            self.location4()
+            self.print_slowly("Вітаю, ви пройшли храм джунглів та отримали артефакт")
+            self.location_4()
             self.save_game()
 
 
@@ -355,14 +358,15 @@ class Game:
         """Друга гілка - пройти крізь пастки і тварин."""
         random_chance = randint(1, 10)
         if random_chance < 3:
-            self.print_slowly("Вітаю, ви пройшли всі пастки і відбились від тварин")
-            self.location4()
+            self.print_slowly("Вітаю, ви пройшли всі пастки і відбились від тварин та ви отримали артефакт")
+            self.location_4()
+
         elif random_chance >= 3:
             self.print_slowly("На жаль вам не повезло і ви не пройшли")
             self.player_hp = 0  
             self.save_game()
 
-    def location4(self):
+    def location_4(self):
         """Фінальна локація гри."""
         self.artifact_count += 1
         self.print_title("ВЕЛИКЕ ДЕРЕВО")
@@ -377,7 +381,6 @@ class Game:
         while self.bosshp > 0 and self.player_hp > 0:
             self.print_slowly(f"\nВаше здоров'я: {self.player_hp}")
             self.print_slowly(f"Здоров'я стража: {self.bosshp}")
-            self.print_slowly(f"Уламків артефакту: {self.artifact_count}")
             self.print_slowly("Ви можете атакувати або використати аптечку (1/2)")
 
             choice = input("Ваша дія: ").strip()
@@ -414,18 +417,19 @@ class Game:
             self.print_slowly("Ви були переможені стражем!")
         elif self.artifact_count == 2:
             self.print_slowly("Ви перемогли стража і забрали останній уламок артефакту")
-            self.print_slowly("Ви склали артефакт. Частини з'єдналися в єдине ціле, яке почало світитися м'яким блакитним світлом.")
-            self.print_slowly("Перед вами повільно відкрився величезний портал, що веде назад до рідного світу.")
-            self.print_slowly("Через нього ви бачите знайомі пейзажі — дім, городи, людей, яких залишили позаду.")
-            self.print_slowly("Втомлений, але переможний, ви крокуєте у портал. Двері за вами закриваються, залишаючи позаду таємниці джунглів.")
-            self.print_slowly("Вітаю! Ви успішно повернулися додому з цінним артефактом і новими спогадами про пригоди.")
+            self.print_slowly("Ви склали артефакт і відкрився портал назад. Вітаю!")
             time.sleep(0.1)
         elif self.artifact_count != 2:
             self.print_slowly("Ви перемогли стража, але не зібрали всі уламки артефакту")
             self.print_slowly("Тому ви застрягаєте в цих джунглях назавжди")
             time.sleep(0.1)
 
-    def bossfight_bosschoice(self):
+    def bossfight_bosschoice(self): 
+        if self.traveler_alive == True and self.player_hp <= 50:
+            self.print_slowly("Мандрівник гуляв і замітив що ти б'єшся з стражем")
+            self.print_slowly("Він витягнув лук і попав по стражу(-25hp)")
+            self.bosshp -= 25
+            self.traveler_alive = False
         attack_chance = randint(1,10)
         if attack_chance <= 9:
             self.print_slowly("Атака стража успішна")
@@ -433,6 +437,8 @@ class Game:
         if attack_chance > 9 :
             self.print_slowly("Атака не удачна, ви ухилилися")
             self.bossfight_playerchoice()
+       
+
 
     def show_status(self):
         """Показує поточний статус гравця: здоров'я, шкода, інвентар."""
