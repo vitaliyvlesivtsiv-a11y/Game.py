@@ -1,8 +1,8 @@
-import json  # Для збереження прогресу гри
-import sys  # Для роботи з системними операціями
-import time  # Для додавання затримок (sleep)
-from pathlib import Path  # Для роботи з шляхами до файлів збереження
-from random import randint  # Для генерування випадкових чисел
+import json
+import sys
+import time
+from pathlib import Path
+from random import randint
 class Game:
     SCREEN_WIDTH = 70
 
