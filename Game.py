@@ -221,7 +221,7 @@ class Game:
                 self.player_hp -= 10
             if self.player_hp <= 10:
                 # death()
-                print('ХА лох')
+                print('ХА ЛОХ')
                 exit()
         print('Вам випало:')
         num_1 = randint(1, 3)
@@ -415,6 +415,7 @@ class Game:
 
         if self.player_hp <= 0:
             self.print_slowly("Ви були переможені стражем!")
+            time.sleep(0.1)
             repeat = input("Повторити гру(так/ні)")
             if repeat == "так":
                 self.start()
@@ -425,10 +426,20 @@ class Game:
             self.print_slowly("Ви перемогли стража і забрали останній уламок артефакту")
             self.print_slowly("Ви склали артефакт і відкрився портал назад. Вітаю!")
             time.sleep(0.1)
+            repeat = input("Повторити гру(так/ні)")
+            if repeat == "так":
+                self.start()
+            else:
+                self.print_slowly("Допобачення")
         elif self.artifact_count != 2:
             self.print_slowly("Ви перемогли стража, але не зібрали всі уламки артефакту")
             self.print_slowly("Тому ви застрягаєте в цих джунглях назавжди")
             time.sleep(0.1)
+            repeat = input("Повторити гру(так/ні)")
+            if repeat == "так":
+                self.start()
+            else:
+                self.print_slowly("Допобачення")
 
     def bossfight_bosschoice(self): 
         if self.traveler_alive == True and self.player_hp <= 50:
