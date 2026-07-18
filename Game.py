@@ -1,8 +1,8 @@
-import json
-import sys
-import time
-from pathlib import Path
-from random import randint
+import json  # Для збереження прогресу гри
+import sys  # Для роботи з системними операціями
+import time  # Для додавання затримок (sleep)
+from pathlib import Path  # Для роботи з шляхами до файлів збереження
+from random import randint  # Для генерування випадкових чисел
 class Game:
     SCREEN_WIDTH = 70
 
@@ -221,7 +221,7 @@ class Game:
                 self.player_hp -= 10
             if self.player_hp <= 10:
                 # death()
-                print('ХА ЛОХ')
+                print('ХА лох')
                 exit()
         print('Вам випало:')
         num_1 = randint(1, 3)
@@ -254,8 +254,8 @@ class Game:
         
         self.print_slowly("\nМандрівник дивиться на вас і усміхається:")
         self.print_slowly('"Вітаю, гравець. Болото сьогодні особливо мовчазне, чи не так?"')
-        self.print_slowly("Тримай жарт для підняття духу: Чим граються діти канібалів?")
-        self.print_slowly('Чужими лопатками!')
+        self.print_slowly("Тримай жарт для підняття духу: Чому жаби не грають у карти?")
+        self.print_slowly('Бо вони постійно бояться, що їх "зажаблять"!')
 
         options = ["1 - Взяти аптечку мирно"]
         if self.has_knife:
@@ -415,6 +415,12 @@ class Game:
 
         if self.player_hp <= 0:
             self.print_slowly("Ви були переможені стражем!")
+            repeat = input("Повторити гру(так/ні)")
+            if repeat == "так":
+                self.start()
+            else:
+                self.print_slowly("Допобачення")
+
         elif self.artifact_count == 2:
             self.print_slowly("Ви перемогли стража і забрали останній уламок артефакту")
             self.print_slowly("Ви склали артефакт і відкрився портал назад. Вітаю!")
@@ -427,9 +433,7 @@ class Game:
     def bossfight_bosschoice(self): 
         if self.traveler_alive == True and self.player_hp <= 50:
             self.print_slowly("Мандрівник гуляв і замітив що ти б'єшся з стражем")
-            self.print_slowly("Твої батьки часом не шахтарі?")
-            time.sleep(1)
-            self.print_slowly("А звідки в них такий камінь? І влучив йому в саме серце(-25hp)")
+            self.print_slowly("Він витягнув лук і попав по стражу(-25hp)")
             self.bosshp -= 25
             self.traveler_alive = False
         attack_chance = randint(1,10)
