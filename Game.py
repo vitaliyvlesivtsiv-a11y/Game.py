@@ -218,7 +218,6 @@ class Game:
                 self.print_slowly("-10 здоров'я")
                 self.player_hp -= 10
             if self.player_hp <= 10:
-                # death()
                 print('ХА лох')
                 exit()
         print('Вам випало:')
@@ -252,8 +251,8 @@ class Game:
         
         self.print_slowly("\nМандрівник дивиться на вас і усміхається:")
         self.print_slowly('"Вітаю, гравець. Болото сьогодні особливо мовчазне, чи не так?"')
-        self.print_slowly("Тримай жарт для підняття духу: Чому жаби не грають у карти?")
-        self.print_slowly('Бо вони постійно бояться, що їх "зажаблять"!')
+        self.print_slowly("Тримай жарт для підняття духу: Чим граються діти канібалів?")
+        self.print_slowly('Чужими лопатками!')
 
         options = ["1 - Взяти аптечку мирно"]
         if self.has_knife:
